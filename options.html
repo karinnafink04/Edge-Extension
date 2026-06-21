@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h2>Timestamp Inserter Settings</h2>
+    <label>Enter your initials:</label>
+    <input id="initials" type="text" />
+    <button id="save">Save</button>
+
+    <script>
+      // Load saved initials
+      chrome.storage.sync.get("initials", ({ initials }) => {
+        if (initials) {
+          document.getElementById("initials").value = initials;
+        }
+      });
+
+      // Save initials
+      document.getElementById("save").addEventListener("click", async () => {
+        const initials = document.getElementById("initials").value.trim();
+        await chrome.storage.sync.set({ initials });
+        alert("Initials saved!");
+      });
+    </script>
+  </body>
+</html>
