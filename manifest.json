@@ -22,6 +22,12 @@
   "host_permissions": [
     "<all_urls>"
   ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["extension.js"]
+    }
+  ],
   "action": {
     "default_popup": "popup.html"
   }
