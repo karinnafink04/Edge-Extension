@@ -1,12 +1,7 @@
 console.log("Background service worker loaded.");
 
 chrome.commands.onCommand.addListener(async (command) => {
-  console.log("Command received:", command);
-
-  if (command !== "insert_timestamp_initials") {
-    console.log("Command ignored.");
-    return;
-  }
+  if (command !== "insert_timestamp_initials") return;
 
   console.log("Running timestamp insertion...");
 
@@ -15,8 +10,6 @@ chrome.commands.onCommand.addListener(async (command) => {
 
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    console.log("Active tab:", tab);
-
     if (!tab || !tab.id) {
       console.warn("No active tab found.");
       return;
@@ -24,12 +17,28 @@ chrome.commands.onCommand.addListener(async (command) => {
 
     console.log("Sending message to content script...");
 
-    chrome.tabs.sendMessage(tab.id, {
-      type: "INSERT_TIMESTAMP_INITIALS",
-      initials: userInitials
-    });
+    chrome.tabs.sendMessage(
+      tab.id,
+      { type: "INSERT_TIMESTAMP_INITIALS", initials: userInitials },
+      async () => {
+        if (chrome.runtime.lastError) {
+          console.warn("Content script not found, injecting now...");
 
-    console.log("Message sent successfully.");
+          await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ["extension.js"]
+          });
+
+          console.log("Content script injected. Retrying message...");
+          chrome.tabs.sendMessage(tab.id, {
+            type: "INSERT_TIMESTAMP_INITIALS",
+            initials: userInitials
+          });
+        } else {
+          console.log("Message sent successfully.");
+        }
+      }
+    );
   } catch (err) {
     console.error("ERROR in background.js:", err);
   }
