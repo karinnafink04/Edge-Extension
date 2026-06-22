@@ -1,14 +1,8 @@
 chrome.commands.onCommand.addListener(async (command) => {
   if (command !== "insert_timestamp_initials") return;
 
-  // Load initials from storage
-  const { initials } = await chrome.storage.sync.get("initials");
-
-  // If initials are missing, stop and notify the user in the console
-  if (!initials) {
-    console.warn("No initials saved. Open the extension's Options page to set them.");
-    return;
-  }
+  // Hard‑coded initials for testing
+  const userInitials = "TEST";
 
   // Get the active tab
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -20,9 +14,9 @@ chrome.commands.onCommand.addListener(async (command) => {
     files: ["contentScript.js"]
   });
 
-  // Tell the content script to insert the timestamp + initials
+  // Send message to content script to insert timestamp + initials
   chrome.tabs.sendMessage(tab.id, {
     type: "INSERT_TIMESTAMP_INITIALS",
-    initials: initials
+    initials: userInitials
   });
 });
