@@ -15,30 +15,28 @@ chrome.commands.onCommand.addListener(async (command) => {
       return;
     }
 
+    // Check if content script is already injected
+    const [result] = await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => !!window.timestampListenerAdded
+    });
+
+    const isInjected = result?.result;
+    console.log("Content script already injected?", isInjected);
+
+    if (!isInjected) {
+      console.log("Injecting content script...");
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ["extension.js"]
+      });
+    }
+
     console.log("Sending message to content script...");
-
-    chrome.tabs.sendMessage(
-      tab.id,
-      { type: "INSERT_TIMESTAMP_INITIALS", initials: userInitials },
-      async () => {
-        if (chrome.runtime.lastError) {
-          console.warn("Content script not found, injecting now...");
-
-          await chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            files: ["extension.js"]
-          });
-
-          console.log("Content script injected. Retrying message...");
-          chrome.tabs.sendMessage(tab.id, {
-            type: "INSERT_TIMESTAMP_INITIALS",
-            initials: userInitials
-          });
-        } else {
-          console.log("Message sent successfully.");
-        }
-      }
-    );
+    chrome.tabs.sendMessage(tab.id, {
+      type: "INSERT_TIMESTAMP_INITIALS",
+      initials: userInitials
+    });
   } catch (err) {
     console.error("ERROR in background.js:", err);
   }
