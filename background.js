@@ -3,7 +3,6 @@ console.log("Background service worker loaded.");
 chrome.commands.onCommand.addListener(async (command) => {
   console.log("Command received:", command);
 
-  // Only handle our shortcut
   if (command !== "insert_timestamp_initials") {
     console.log("Command ignored.");
     return;
@@ -11,17 +10,15 @@ chrome.commands.onCommand.addListener(async (command) => {
 
   console.log("Running timestamp insertion...");
 
-  // Get stored initials (fallback to "??" if none)
   const { initials } = await chrome.storage.sync.get("initials");
   const userInitials = initials || "??";
 
   try {
-    // Find the active tab
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     console.log("Active tab:", tab);
 
     if (!tab || !tab.id) {
-      console.warn("No active tab found — make sure you’re on a webpage.");
+      console.warn("No active tab found.");
       return;
     }
 
@@ -34,12 +31,8 @@ chrome.commands.onCommand.addListener(async (command) => {
         initials: userInitials
       },
       async () => {
-        // If the content script isn't loaded yet, inject it once
         if (chrome.runtime.lastError) {
-          console.warn(
-            "No content script found, injecting manually...",
-            chrome.runtime.lastError.message
-          );
+          console.warn("Content script not found, injecting...", chrome.runtime.lastError.message);
 
           try {
             await chrome.scripting.executeScript({
