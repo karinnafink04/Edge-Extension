@@ -1,25 +1,27 @@
 console.log("Content script loaded.");
 
-chrome.runtime.onMessage.addListener((message) => {
-  if (message.type !== "INSERT_TIMESTAMP_INITIALS") return;
+// Prevent duplicate listeners
+if (!window.timestampListenerAdded) {
+  window.timestampListenerAdded = true;
 
-  console.log("Received INSERT_TIMESTAMP_INITIALS message:", message);
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message.type !== "INSERT_TIMESTAMP_INITIALS") return;
 
-  const timestamp = new Date().toLocaleString();
-  const text = `${timestamp} - ${message.initials}`;
+    console.log("Received INSERT_TIMESTAMP_INITIALS:", message);
 
-  const activeElement = document.activeElement;
+    const timestamp = new Date().toLocaleString();
+    const text = `${timestamp} - ${message.initials}`;
 
-  if (
-    activeElement &&
-    (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA")
-  ) {
-    activeElement.value += text;
-    console.log("Inserted into input/textarea.");
-  } else if (activeElement && activeElement.isContentEditable) {
-    activeElement.innerText += text;
-    console.log("Inserted into contentEditable element.");
-  } else {
-    console.warn("No suitable active element to insert into.");
-  }
-});
+    const el = document.activeElement;
+
+    if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")) {
+      el.value += text;
+      console.log("Inserted into input/textarea.");
+    } else if (el && el.isContentEditable) {
+      el.innerText += text;
+      console.log("Inserted into contentEditable.");
+    } else {
+      console.warn("No valid active element to insert into.");
+    }
+  });
+}
