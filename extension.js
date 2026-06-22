@@ -1,3 +1,9 @@
+if (window.hasRunTimestampScript) {
+  console.log("Content script already running — skipping duplicate load.");
+  return;
+}
+window.hasRunTimestampScript = true;
+
 console.log("Content script loaded.");
 
 // Prevent duplicate listeners
