@@ -3,6 +3,7 @@ console.log("Background service worker loaded.");
 chrome.commands.onCommand.addListener(async (command) => {
   console.log("Command received:", command);
 
+  // Only handle our shortcut
   if (command !== "insert_timestamp_initials") {
     console.log("Command ignored.");
     return;
@@ -15,6 +16,7 @@ chrome.commands.onCommand.addListener(async (command) => {
   const userInitials = initials || "??";
 
   try {
+    // Find the active tab
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     console.log("Active tab:", tab);
 
@@ -23,13 +25,25 @@ chrome.commands.onCommand.addListener(async (command) => {
       return;
     }
 
+    // Send message safely to content script
     console.log("Sending message to content script...");
-    chrome.tabs.sendMessage(tab.id, {
-      type: "INSERT_TIMESTAMP_INITIALS",
-      initials: userInitials
-    });
-
-    console.log("Message sent successfully.");
+    chrome.tabs.sendMessage(
+      tab.id,
+      {
+        type: "INSERT_TIMESTAMP_INITIALS",
+        initials: userInitials
+      },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          console.warn(
+            "No content script found in this tab:",
+            chrome.runtime.lastError.message
+          );
+          return;
+        }
+        console.log("Message sent successfully.");
+      }
+    );
   } catch (err) {
     console.error("ERROR in background.js:", err);
   }
