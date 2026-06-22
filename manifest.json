@@ -1,27 +1,23 @@
 {
   "manifest_version": 3,
-  "name": "Timestamp + Initials Inserter",
+  "name": "Timestamp Inserter",
   "version": "1.0",
-  "description": "Insert date, time, and user initials into text fields with Ctrl+Shift+F.",
-  "permissions": [
-    "storage",
-    "scripting",
-    "activeTab"
-  ],
+
+  "permissions": ["storage", "activeTab", "scripting", "commands"],
+
+  "commands": {
+    "insert_timestamp_initials": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F"
+      },
+      "description": "Insert timestamp and initials"
+    }
+  },
+
   "background": {
     "service_worker": "background.js"
   },
-  "commands": {
-    "insert_timestamp_initials": {
-      "description": "Insert date, time, and initials into the focused text field",
-      "suggested_key": {
-        "default": "Ctrl+Shift+F"
-      }
-    }
-  },
-  "host_permissions": [
-    "<all_urls>"
-  ],
+
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -29,8 +25,5 @@
       "run_at": "document_idle",
       "all_frames": false
     }
-  ],
-  "action": {
-    "default_popup": "popup.html"
-  }
+  ]
 }
