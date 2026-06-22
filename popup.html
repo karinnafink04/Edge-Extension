@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Set Your Initials</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 15px;
+        width: 220px;
+      }
+      h3 {
+        margin-top: 0;
+        font-size: 16px;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        padding: 5px;
+      }
+      button {
+        width: 100%;
+        padding: 6px;
+        cursor: pointer;
+      }
+      #status {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #008000;
+        min-height: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Your Initials</h3>
+    <input id="initials" type="text" placeholder="Enter initials" />
+    <button id="save">Save</button>
+    <p id="status"></p>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
