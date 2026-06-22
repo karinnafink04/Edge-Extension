@@ -25,22 +25,41 @@ chrome.commands.onCommand.addListener(async (command) => {
       return;
     }
 
-    // Send message safely to content script
     console.log("Sending message to content script...");
+
     chrome.tabs.sendMessage(
       tab.id,
       {
         type: "INSERT_TIMESTAMP_INITIALS",
         initials: userInitials
       },
-      (response) => {
+      async () => {
+        // If the content script isn't loaded yet, inject it once
         if (chrome.runtime.lastError) {
           console.warn(
-            "No content script found in this tab:",
+            "No content script found, injecting manually...",
             chrome.runtime.lastError.message
           );
+
+          try {
+            await chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              files: ["extension.js"]
+            });
+
+            console.log("Content script injected. Retrying message...");
+
+            chrome.tabs.sendMessage(tab.id, {
+              type: "INSERT_TIMESTAMP_INITIALS",
+              initials: userInitials
+            });
+          } catch (injectErr) {
+            console.error("Failed to inject content script:", injectErr);
+          }
+
           return;
         }
+
         console.log("Message sent successfully.");
       }
     );
