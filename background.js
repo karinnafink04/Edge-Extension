@@ -23,12 +23,6 @@ chrome.commands.onCommand.addListener(async (command) => {
       return;
     }
 
-    console.log("Injecting extension.js...");
-    await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      files: ["extension.js"]
-    });
-
     console.log("Sending message to content script...");
     chrome.tabs.sendMessage(tab.id, {
       type: "INSERT_TIMESTAMP_INITIALS",
