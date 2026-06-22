@@ -1,4 +1,4 @@
-console.log("Background worker loaded.");
+console.log("Background service worker loaded.");
 
 chrome.commands.onCommand.addListener(async (command) => {
   console.log("Command received:", command);
@@ -10,14 +10,16 @@ chrome.commands.onCommand.addListener(async (command) => {
 
   console.log("Running timestamp insertion...");
 
-  const userInitials = "TEST";
+  // Get stored initials (fallback to "??" if none)
+  const { initials } = await chrome.storage.sync.get("initials");
+  const userInitials = initials || "??";
 
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     console.log("Active tab:", tab);
 
     if (!tab || !tab.id) {
-      console.log("No active tab found.");
+      console.warn("No active tab found — make sure you’re on a webpage.");
       return;
     }
 
