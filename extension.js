@@ -6,7 +6,7 @@ if (!window.timestampListenerAdded) {
   chrome.runtime.onMessage.addListener((message) => {
     if (message.type !== "INSERT_TIMESTAMP_INITIALS") return;
 
-    // Format timestamp as MM/DD/YYYY, HH:MM (no seconds)
+    // Format timestamp as MM/DD/YYYY, HH:MM
     const now = new Date();
     const timestamp = now.toLocaleString([], {
       year: "numeric",
@@ -32,10 +32,11 @@ if (!window.timestampListenerAdded) {
       // Move cursor to end of inserted text
       const newPos = start + text.length;
       el.selectionStart = el.selectionEnd = newPos;
-    }
 
-    // contentEditable
-    else if (el && el.isContentEditable) {
+      // 🔥 Tell Flybook/React/Vue that the value changed
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+
+    } else if (el && el.isContentEditable) {
       const selection = window.getSelection();
       if (!selection.rangeCount) return;
 
@@ -50,6 +51,9 @@ if (!window.timestampListenerAdded) {
       range.setEndAfter(node);
       selection.removeAllRanges();
       selection.addRange(range);
+
+      // 🔥 Trigger input event for contentEditable
+      el.dispatchEvent(new Event("input", { bubbles: true }));
     }
   });
 }
