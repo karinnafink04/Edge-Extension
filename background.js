@@ -11,7 +11,7 @@ chrome.commands.onCommand.addListener(async (command) => {
   // Inject the content script into the page
   await chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    files: ["contentScript.js"]
+    files: ["extension.js"]
   });
 
   // Send message to content script to insert timestamp + initials
