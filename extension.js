@@ -1,32 +1,28 @@
-if (window.hasRunTimestampScript) {
-  console.log("Content script already running — skipping duplicate load.");
-} else {
-  window.hasRunTimestampScript = true;
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type !== "INSERT_TIMESTAMP_INITIALS") return;
 
-  console.log("Content script loaded.");
+  console.log("Received INSERT_TIMESTAMP_INITIALS:", message);
 
-  if (!window.timestampListenerAdded) {
-    window.timestampListenerAdded = true;
+  const now = new Date();
+  const timestamp = now.toLocaleString([], {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 
-    chrome.runtime.onMessage.addListener((message) => {
-      if (message.type !== "INSERT_TIMESTAMP_INITIALS") return;
+  const text = `${timestamp} - ${message.initials}`;
 
-      console.log("Received INSERT_TIMESTAMP_INITIALS:", message);
+  const el = document.activeElement;
 
-      const timestamp = new Date().toLocaleString();
-      const text = `${timestamp} - ${message.initials}`;
-
-      const el = document.activeElement;
-
-      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")) {
-        el.value += text;
-        console.log("Inserted into input/textarea.");
-      } else if (el && el.isContentEditable) {
-        el.innerText += text;
-        console.log("Inserted into contentEditable.");
-      } else {
-        console.warn("No valid active element to insert into.");
-      }
-    });
+  if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")) {
+    el.value += text;
+    console.log("Inserted into input/textarea.");
+  } else if (el && el.isContentEditable) {
+    el.innerText += text;
+    console.log("Inserted into contentEditable.");
+  } else {
+    console.warn("No valid active element to insert into.");
   }
-}
+});
