@@ -6,7 +6,6 @@ window.hasRunTimestampScript = true;
 
 console.log("Content script loaded.");
 
-// Prevent duplicate listeners
 if (!window.timestampListenerAdded) {
   window.timestampListenerAdded = true;
 
